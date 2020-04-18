@@ -16,19 +16,38 @@
  */
 package org.apache.lucene.analysis.cn.smart.hhmm;
 
-import java.util.List;
-
 import org.apache.lucene.analysis.cn.smart.CharType;
 import org.apache.lucene.analysis.cn.smart.Utility;
 import org.apache.lucene.analysis.cn.smart.WordType;
 
+import java.util.List;
+
 /**
  * Finds the optimal segmentation of a sentence into Chinese words
+ *
  * @lucene.experimental
  */
 public class HHMMSegmenter {
 
-  private static WordDictionary wordDict = WordDictionary.getInstance();
+  private static final WordDictionary wordDict = WordDictionary.getInstance();
+
+  /**
+   * Get the character types for every character in a sentence.
+   *
+   * @param sentence input sentence
+   * @return array of character types corresponding to character positions in the sentence
+   * @see Utility#getCharType(char)
+   */
+  private static int[] getCharTypes(String sentence) {
+    int length = sentence.length();
+    int[] charTypeArray = new int[length];
+    // the type of each character by position
+    for (int i = 0; i < length; i++) {
+      charTypeArray[i] = Utility.getCharType(sentence.charAt(i));
+    }
+
+    return charTypeArray;
+  }
 
   /**
    * Create the {@link SegGraph} for a sentence.
@@ -72,10 +91,10 @@ public class HHMMSegmenter {
           // it will store that single Chinese character (Hanzi) in the SegGraph.  Otherwise, it will
           // cause word division.
           wordBuf.append(sentence.charAt(i));
-          charArray = new char[] { sentence.charAt(i) };
+          charArray = new char[]{sentence.charAt(i)};
           frequency = wordDict.getFrequency(charArray);
           token = new SegToken(charArray, i, j, WordType.CHINESE_WORD,
-              frequency);
+            frequency);
           segGraph.addToken(token);
 
           foundIndex = wordDict.getPrefixMatch(charArray);
@@ -85,7 +104,7 @@ public class HHMMSegmenter {
               // from i to j.  It is not a monosyllabic word (single word).
               frequency = wordDict.getFrequency(charArray);
               token = new SegToken(charArray, i, j, WordType.CHINESE_WORD,
-                  frequency);
+                frequency);
               segGraph.addToken(token);
             }
 
@@ -112,7 +131,7 @@ public class HHMMSegmenter {
         case CharType.LETTER:
           j = i + 1;
           while (j < length
-              && (charTypeArray[j] == CharType.LETTER || charTypeArray[j] == CharType.FULLWIDTH_LETTER)) {
+            && (charTypeArray[j] == CharType.LETTER || charTypeArray[j] == CharType.FULLWIDTH_LETTER)) {
             if (charTypeArray[j] == CharType.FULLWIDTH_LETTER)
               hasFullWidth = true;
             j++;
@@ -130,7 +149,7 @@ public class HHMMSegmenter {
         case CharType.DIGIT:
           j = i + 1;
           while (j < length
-              && (charTypeArray[j] == CharType.DIGIT || charTypeArray[j] == CharType.FULLWIDTH_DIGIT)) {
+            && (charTypeArray[j] == CharType.DIGIT || charTypeArray[j] == CharType.FULLWIDTH_DIGIT)) {
             if (charTypeArray[j] == CharType.FULLWIDTH_DIGIT)
               hasFullWidth = true;
             j++;
@@ -147,7 +166,7 @@ public class HHMMSegmenter {
           j = i + 1;
           // No need to search the weight for the punctuation.  Picking the highest frequency will work.
           frequency = Utility.MAX_FREQUENCE;
-          charArray = new char[] { sentence.charAt(i) };
+          charArray = new char[]{sentence.charAt(i)};
           token = new SegToken(charArray, i, j, WordType.DELIMITER, frequency);
           segGraph.addToken(token);
           i = j;
@@ -175,32 +194,15 @@ public class HHMMSegmenter {
     charArray = Utility.END_CHAR_ARRAY;
     frequency = wordDict.getFrequency(charArray);
     token = new SegToken(charArray, length, length + 1, WordType.SENTENCE_END,
-        frequency);
+      frequency);
     segGraph.addToken(token);
 
     return segGraph;
   }
 
   /**
-   * Get the character types for every character in a sentence.
-   *
-   * @see Utility#getCharType(char)
-   * @param sentence input sentence
-   * @return array of character types corresponding to character positions in the sentence
-   */
-  private static int[] getCharTypes(String sentence) {
-    int length = sentence.length();
-    int[] charTypeArray = new int[length];
-    // the type of each character by position
-    for (int i = 0; i < length; i++) {
-      charTypeArray[i] = Utility.getCharType(sentence.charAt(i));
-    }
-
-    return charTypeArray;
-  }
-
-  /**
    * Return a list of {@link SegToken} representing the best segmentation of a sentence
+   *
    * @param sentence input sentence
    * @return best segmentation as a {@link List}
    */

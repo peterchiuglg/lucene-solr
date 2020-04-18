@@ -20,6 +20,7 @@ import java.util.Arrays;
 
 /**
  * A pair of tokens in {@link SegGraph}
+ *
  * @lucene.experimental
  */
 class SegTokenPair {
@@ -52,7 +53,7 @@ class SegTokenPair {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    for(int i=0;i<charArray.length;i++) {
+    for (int i = 0; i < charArray.length; i++) {
       result = prime * result + charArray[i];
     }
     result = prime * result + from;
@@ -81,10 +82,8 @@ class SegTokenPair {
       return false;
     if (to != other.to)
       return false;
-    if (Double.doubleToLongBits(weight) != Double
-        .doubleToLongBits(other.weight))
-      return false;
-    return true;
+    return Double.doubleToLongBits(weight) == Double
+      .doubleToLongBits(other.weight);
   }
 
 }

@@ -16,64 +16,57 @@
  */
 package org.apache.lucene.analysis.cn.smart.hhmm;
 
-import java.io.DataInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import org.apache.lucene.analysis.cn.smart.AnalyzerProfile;
+import org.apache.lucene.analysis.cn.smart.Utility;
+
+import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import org.apache.lucene.analysis.cn.smart.AnalyzerProfile;
-import org.apache.lucene.analysis.cn.smart.Utility;
-
 /**
  * SmartChineseAnalyzer Word Dictionary
+ *
  * @lucene.experimental
  */
 class WordDictionary extends AbstractDictionary {
-
-  private WordDictionary() {
-  }
-
-  private static WordDictionary singleInstance;
 
   /**
    * Large prime number for hash function
    */
   public static final int PRIME_INDEX_LENGTH = 12071;
-
+  private static WordDictionary singleInstance;
   /**
-   * wordIndexTable guarantees to hash all Chinese characters in Unicode into 
-   * PRIME_INDEX_LENGTH array. There will be conflict, but in reality this 
-   * program only handles the 6768 characters found in GB2312 plus some 
+   * wordIndexTable guarantees to hash all Chinese characters in Unicode into
+   * PRIME_INDEX_LENGTH array. There will be conflict, but in reality this
+   * program only handles the 6768 characters found in GB2312 plus some
    * ASCII characters. Therefore in order to guarantee better precision, it is
    * necessary to retain the original symbol in the charIndexTable.
    */
   private short[] wordIndexTable;
-
   private char[] charIndexTable;
-
   /**
-   * To avoid taking too much space, the data structure needed to store the 
+   * To avoid taking too much space, the data structure needed to store the
    * lexicon requires two multidimensional arrays to store word and frequency.
-   * Each word is placed in a char[]. Each char represents a Chinese char or 
-   * other symbol.  Each frequency is put into an int. These two arrays 
-   * correspond to each other one-to-one. Therefore, one can use 
-   * wordItem_charArrayTable[i][j] to look up word from lexicon, and 
-   * wordItem_frequencyTable[i][j] to look up the corresponding frequency. 
+   * Each word is placed in a char[]. Each char represents a Chinese char or
+   * other symbol.  Each frequency is put into an int. These two arrays
+   * correspond to each other one-to-one. Therefore, one can use
+   * wordItem_charArrayTable[i][j] to look up word from lexicon, and
+   * wordItem_frequencyTable[i][j] to look up the corresponding frequency.
    */
   private char[][][] wordItem_charArrayTable;
-
   private int[][] wordItem_frequencyTable;
+
+  private WordDictionary() {
+  }
 
   // static Logger log = Logger.getLogger(WordDictionary.class);
 
   /**
    * Get the singleton dictionary instance.
+   *
    * @return singleton
    */
   public synchronized static WordDictionary getInstance() {
@@ -93,7 +86,7 @@ class WordDictionary extends AbstractDictionary {
 
   /**
    * Attempt to load dictionary from provided directory, first trying coredict.mem, failing back on coredict.dct
-   * 
+   *
    * @param dctFileRoot path to dictionary directory
    */
   public void load(String dctFileRoot) {
@@ -129,7 +122,7 @@ class WordDictionary extends AbstractDictionary {
 
   /**
    * Load coredict.mem internally from the jar file.
-   * 
+   *
    * @throws IOException If there is a low-level I/O error.
    */
   public void load() throws IOException, ClassNotFoundException {
@@ -147,7 +140,7 @@ class WordDictionary extends AbstractDictionary {
   }
 
   private void loadFromObjectInputStream(InputStream serialObjectInputStream)
-      throws IOException, ClassNotFoundException {
+    throws IOException, ClassNotFoundException {
     try (ObjectInputStream input = new ObjectInputStream(serialObjectInputStream)) {
       wordIndexTable = (short[]) input.readObject();
       charIndexTable = (char[]) input.readObject();
@@ -171,7 +164,7 @@ class WordDictionary extends AbstractDictionary {
 
   /**
    * Load the datafile into this WordDictionary
-   * 
+   *
    * @param dctFilePath path to word dictionary (coredict.dct)
    * @return number of words read
    * @throws IOException If there is a low-level I/O error.
@@ -206,13 +199,13 @@ class WordDictionary extends AbstractDictionary {
         // wordItemTable[i][j] = new WordItem();
         dctFile.read(intBuffer);
         buffer[0] = ByteBuffer.wrap(intBuffer).order(ByteOrder.LITTLE_ENDIAN)
-            .getInt();// frequency
+          .getInt();// frequency
         dctFile.read(intBuffer);
         buffer[1] = ByteBuffer.wrap(intBuffer).order(ByteOrder.LITTLE_ENDIAN)
-            .getInt();// length
+          .getInt();// length
         dctFile.read(intBuffer);
         buffer[2] = ByteBuffer.wrap(intBuffer).order(ByteOrder.LITTLE_ENDIAN)
-            .getInt();// handle
+          .getInt();// handle
 
         // wordItemTable[i][j].frequency = buffer[0];
         wordItem_frequencyTable[i][j] = buffer[0];
@@ -241,7 +234,7 @@ class WordDictionary extends AbstractDictionary {
   }
 
   /**
-   * The original lexicon puts all information with punctuation into a 
+   * The original lexicon puts all information with punctuation into a
    * chart (from 1 to 3755). Here it then gets expanded, separately being
    * placed into the chart that has the corresponding symbol.
    */
@@ -260,7 +253,7 @@ class WordDictionary extends AbstractDictionary {
         int k = i;
         // Starting from i, count the number of the following worditem symbol from j
         while (k < wordItem_charArrayTable[delimiterIndex].length
-            && wordItem_charArrayTable[delimiterIndex][k][0] == c) {
+          && wordItem_charArrayTable[delimiterIndex][k][0] == c) {
           k++;
         }
         // c is the punctuation character, j is the id value of c
@@ -277,8 +270,8 @@ class WordDictionary extends AbstractDictionary {
           wordItem_frequencyTable[j][k] = wordItem_frequencyTable[delimiterIndex][i];
           wordItem_charArrayTable[j][k] = new char[wordItem_charArrayTable[delimiterIndex][i].length - 1];
           System.arraycopy(wordItem_charArrayTable[delimiterIndex][i], 1,
-              wordItem_charArrayTable[j][k], 0,
-              wordItem_charArrayTable[j][k].length);
+            wordItem_charArrayTable[j][k], 0,
+            wordItem_charArrayTable[j][k].length);
         }
         setTableIndex(c, j);
       }
@@ -299,7 +292,7 @@ class WordDictionary extends AbstractDictionary {
       int len = 1;
       for (int j = 1; j < wordItem_charArrayTable[i].length; j++) {
         if (Utility.compareArray(wordItem_charArrayTable[i][j], 0,
-            wordItem_charArrayTable[i][j - 1], 0) != 0)
+          wordItem_charArrayTable[i][j - 1], 0) != 0)
           len++;
 
       }
@@ -311,7 +304,7 @@ class WordDictionary extends AbstractDictionary {
         tempFreq[0] = wordItem_frequencyTable[i][0];
         for (int j = 1; j < wordItem_charArrayTable[i].length; j++) {
           if (Utility.compareArray(wordItem_charArrayTable[i][j], 0,
-              tempArray[k], 0) != 0) {
+            tempArray[k], 0) != 0) {
             k++;
             // temp[k] = wordItemTable[i][j];
             tempArray[k] = wordItem_charArrayTable[i][j];
@@ -333,11 +326,11 @@ class WordDictionary extends AbstractDictionary {
     int tmpFreq;
     for (int i = 0; i < wordItem_charArrayTable.length; i++) {
       if (wordItem_charArrayTable[i] != null
-          && wordItem_charArrayTable[i].length > 1) {
+        && wordItem_charArrayTable[i].length > 1) {
         for (int j = 0; j < wordItem_charArrayTable[i].length - 1; j++) {
           for (int j2 = j + 1; j2 < wordItem_charArrayTable[i].length; j2++) {
             if (Utility.compareArray(wordItem_charArrayTable[i][j], 0,
-                wordItem_charArrayTable[i][j2], 0) > 0) {
+              wordItem_charArrayTable[i][j2], 0) > 0) {
               tmpArray = wordItem_charArrayTable[i][j];
               tmpFreq = wordItem_frequencyTable[i][j];
               wordItem_charArrayTable[i][j] = wordItem_charArrayTable[i][j2];
@@ -352,7 +345,7 @@ class WordDictionary extends AbstractDictionary {
   }
 
   /*
-   * Calculate character c's position in hash table, 
+   * Calculate character c's position in hash table,
    * then initialize the value of that position in the address table.
    */
   private boolean setTableIndex(char c, int j) {
@@ -375,14 +368,14 @@ class WordDictionary extends AbstractDictionary {
     int index = hash1;
     int i = 1;
     while (charIndexTable[index] != 0 && charIndexTable[index] != c
-        && i < PRIME_INDEX_LENGTH) {
+      && i < PRIME_INDEX_LENGTH) {
       index = (hash1 + i * hash2) % PRIME_INDEX_LENGTH;
       i++;
     }
     // System.out.println(i - 1);
 
     if (i < PRIME_INDEX_LENGTH
-        && (charIndexTable[index] == 0 || charIndexTable[index] == c)) {
+      && (charIndexTable[index] == 0 || charIndexTable[index] == c)) {
       return (short) index;
     } else
       return -1;
@@ -398,7 +391,7 @@ class WordDictionary extends AbstractDictionary {
     int index = hash1;
     int i = 1;
     while (charIndexTable[index] != 0 && charIndexTable[index] != c
-        && i < PRIME_INDEX_LENGTH) {
+      && i < PRIME_INDEX_LENGTH) {
       index = (hash1 + i * hash2) % PRIME_INDEX_LENGTH;
       i++;
     }
@@ -410,13 +403,13 @@ class WordDictionary extends AbstractDictionary {
   }
 
   /**
-   * Look up the text string corresponding with the word char array, 
+   * Look up the text string corresponding with the word char array,
    * and return the position of the word list.
-   * 
-   * @param knownHashIndex already figure out position of the first word 
-   *   symbol charArray[0] in hash table. If not calculated yet, can be 
-   *   replaced with function int findInTable(char[] charArray).
-   * @param charArray look up the char array corresponding with the word.
+   *
+   * @param knownHashIndex already figure out position of the first word
+   *                       symbol charArray[0] in hash table. If not calculated yet, can be
+   *                       replaced with function int findInTable(char[] charArray).
+   * @param charArray      look up the char array corresponding with the word.
    * @return word location in word array.  If not found, then return -1.
    */
   private int findInTable(short knownHashIndex, char[] charArray) {
@@ -445,10 +438,10 @@ class WordDictionary extends AbstractDictionary {
 
   /**
    * Find the first word in the dictionary that starts with the supplied prefix
-   * 
-   * @see #getPrefixMatch(char[], int)
+   *
    * @param charArray input prefix
    * @return index of word, or -1 if not found
+   * @see #getPrefixMatch(char[], int)
    */
   public int getPrefixMatch(char[] charArray) {
     return getPrefixMatch(charArray, 0);
@@ -456,11 +449,11 @@ class WordDictionary extends AbstractDictionary {
 
   /**
    * Find the nth word in the dictionary that starts with the supplied prefix
-   * 
-   * @see #getPrefixMatch(char[])
-   * @param charArray input prefix
+   *
+   * @param charArray  input prefix
    * @param knownStart relative position in the dictionary to start
    * @return index of word, or -1 if not found
+   * @see #getPrefixMatch(char[])
    */
   public int getPrefixMatch(char[] charArray, int knownStart) {
     short index = getWordItemTableIndex(charArray[0]);
@@ -477,7 +470,7 @@ class WordDictionary extends AbstractDictionary {
       if (cmpResult == 0) {
         // Get the first item which match the current word
         while (mid >= 0
-            && Utility.compareArrayByPrefix(charArray, 1, items[mid], 0) == 0)
+          && Utility.compareArrayByPrefix(charArray, 1, items[mid], 0) == 0)
           mid--;
         mid++;
         return mid;// Find the first word that uses charArray as prefix.
@@ -492,7 +485,7 @@ class WordDictionary extends AbstractDictionary {
 
   /**
    * Get the frequency of a word from the dictionary
-   * 
+   *
    * @param charArray input word
    * @return word frequency, or zero if the word is not found
    */
@@ -509,7 +502,7 @@ class WordDictionary extends AbstractDictionary {
 
   /**
    * Return true if the dictionary entry at itemIndex for table charArray[0] is charArray
-   * 
+   *
    * @param charArray input word
    * @param itemIndex item index for table charArray[0]
    * @return true if the entry exists
@@ -517,7 +510,7 @@ class WordDictionary extends AbstractDictionary {
   public boolean isEqual(char[] charArray, int itemIndex) {
     short hashIndex = getWordItemTableIndex(charArray[0]);
     return Utility.compareArray(charArray, 1,
-        wordItem_charArrayTable[wordIndexTable[hashIndex]][itemIndex], 0) == 0;
+      wordItem_charArrayTable[wordIndexTable[hashIndex]][itemIndex], 0) == 0;
   }
 
 }

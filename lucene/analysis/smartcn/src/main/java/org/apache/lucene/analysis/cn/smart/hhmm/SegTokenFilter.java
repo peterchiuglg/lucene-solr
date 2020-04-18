@@ -24,6 +24,7 @@ import org.apache.lucene.analysis.cn.smart.WordType;
  * Filters a {@link SegToken} by converting full-width latin to half-width, then lowercasing latin.
  * Additionally, all punctuation is converted into {@link Utility#COMMON_DELIMITER}
  * </p>
+ *
  * @lucene.experimental
  */
 public class SegTokenFilter {
@@ -34,7 +35,7 @@ public class SegTokenFilter {
    * Full-width latin will be converted to half-width, then all latin will be lowercased.
    * All punctuation is converted into {@link Utility#COMMON_DELIMITER}
    * </p>
-   * 
+   *
    * @param token input {@link SegToken}
    * @return normalized {@link SegToken}
    */

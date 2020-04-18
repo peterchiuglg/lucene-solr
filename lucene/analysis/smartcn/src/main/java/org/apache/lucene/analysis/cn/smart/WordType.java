@@ -18,6 +18,7 @@ package org.apache.lucene.analysis.cn.smart;
 
 /**
  * Internal SmartChineseAnalyzer token type constants
+ *
  * @lucene.experimental
  */
 public class WordType {
@@ -33,7 +34,7 @@ public class WordType {
   public final static int SENTENCE_END = 1;
 
   /**
-   * Chinese Word 
+   * Chinese Word
    */
   public final static int CHINESE_WORD = 2;
 
@@ -43,7 +44,7 @@ public class WordType {
   public final static int STRING = 3;
 
   /**
-   * ASCII Alphanumeric 
+   * ASCII Alphanumeric
    */
   public final static int NUMBER = 4;
 

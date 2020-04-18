@@ -16,12 +16,13 @@
  */
 package org.apache.lucene.analysis.cn.smart.hhmm;
 
-import java.util.Arrays;
+import org.apache.lucene.analysis.cn.smart.WordType;
 
-import org.apache.lucene.analysis.cn.smart.WordType; // for javadocs
+import java.util.Arrays;
 
 /**
  * SmartChineseAnalyzer internal token
+ *
  * @lucene.experimental
  */
 public class SegToken {
@@ -41,7 +42,7 @@ public class SegToken {
   public int endOffset;
 
   /**
-   * {@link WordType} of the text 
+   * {@link WordType} of the text
    */
   public int wordType;
 
@@ -57,12 +58,12 @@ public class SegToken {
 
   /**
    * Create a new SegToken from a character array.
-   * 
-   * @param idArray character array containing text
-   * @param start start offset of SegToken in original sentence
-   * @param end end offset of SegToken in original sentence
+   *
+   * @param idArray  character array containing text
+   * @param start    start offset of SegToken in original sentence
+   * @param end      end offset of SegToken in original sentence
    * @param wordType {@link WordType} of the text
-   * @param weight word frequency
+   * @param weight   word frequency
    */
   public SegToken(char[] idArray, int start, int end, int wordType, int weight) {
     this.charArray = idArray;
@@ -79,7 +80,7 @@ public class SegToken {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    for(int i=0;i<charArray.length;i++) {
+    for (int i = 0; i < charArray.length; i++) {
       result = prime * result + charArray[i];
     }
     result = prime * result + endOffset;
@@ -112,9 +113,7 @@ public class SegToken {
       return false;
     if (weight != other.weight)
       return false;
-    if (wordType != other.wordType)
-      return false;
-    return true;
+    return wordType == other.wordType;
   }
 
 }

@@ -16,31 +16,32 @@
  */
 package org.apache.lucene.analysis.cn.smart;
 
-import org.apache.lucene.analysis.cn.smart.hhmm.SegTokenFilter; // for javadoc
+import org.apache.lucene.analysis.cn.smart.hhmm.SegTokenFilter;
 
 import static java.lang.Character.isSurrogate;
 
 /**
  * SmartChineseAnalyzer utility constants and methods
+ *
  * @lucene.experimental
  */
 public class Utility {
 
   public static final char[] STRING_CHAR_ARRAY = "未##串"
-      .toCharArray();
+    .toCharArray();
 
   public static final char[] NUMBER_CHAR_ARRAY = "未##数"
-      .toCharArray();
+    .toCharArray();
 
   public static final char[] START_CHAR_ARRAY = "始##始"
-      .toCharArray();
+    .toCharArray();
 
   public static final char[] END_CHAR_ARRAY = "末##末".toCharArray();
 
   /**
    * Delimiters will be filtered to this character by {@link SegTokenFilter}
    */
-  public static final char[] COMMON_DELIMITER = new char[] { ',' };
+  public static final char[] COMMON_DELIMITER = new char[]{','};
 
   /**
    * Space-like characters that need to be skipped: such as space, tab, newline, carriage return.
@@ -48,21 +49,21 @@ public class Utility {
   public static final String SPACES = " 　\t\r\n";
 
   /**
-   * Maximum bigram frequency (used in the smoothing function). 
+   * Maximum bigram frequency (used in the smoothing function).
    */
   public static final int MAX_FREQUENCE = 2079997 + 80000;
 
   /**
    * compare two arrays starting at the specified offsets.
-   * 
-   * @param larray left array
+   *
+   * @param larray      left array
    * @param lstartIndex start offset into larray
-   * @param rarray right array
+   * @param rarray      right array
    * @param rstartIndex start offset into rarray
    * @return 0 if the arrays are equal，1 if larray &gt; rarray, -1 if larray &lt; rarray
    */
   public static int compareArray(char[] larray, int lstartIndex, char[] rarray,
-      int rstartIndex) {
+                                 int rstartIndex) {
 
     if (larray == null) {
       if (rarray == null || rstartIndex >= rarray.length)
@@ -111,15 +112,15 @@ public class Utility {
    * Compare two arrays, starting at the specified offsets, but treating shortArray as a prefix to longArray.
    * As long as shortArray is a prefix of longArray, return 0.
    * Otherwise, behave as {@link Utility#compareArray(char[], int, char[], int)}
-   * 
+   *
    * @param shortArray prefix array
    * @param shortIndex offset into shortArray
-   * @param longArray long array (word)
-   * @param longIndex offset into longArray
+   * @param longArray  long array (word)
+   * @param longIndex  offset into longArray
    * @return 0 if shortArray is a prefix of longArray, otherwise act as {@link Utility#compareArray(char[], int, char[], int)}
    */
   public static int compareArrayByPrefix(char[] shortArray, int shortIndex,
-      char[] longArray, int longIndex) {
+                                         char[] longArray, int longIndex) {
 
     // a null prefix is a prefix of longArray
     if (shortArray == null)
@@ -129,7 +130,7 @@ public class Utility {
 
     int si = shortIndex, li = longIndex;
     while (si < shortArray.length && li < longArray.length
-        && shortArray[si] == longArray[li]) {
+      && shortArray[si] == longArray[li]) {
       si++;
       li++;
     }
@@ -147,10 +148,10 @@ public class Utility {
   }
 
   /**
-   * Return the internal {@link CharType} constant of a given character. 
+   * Return the internal {@link CharType} constant of a given character.
+   *
    * @param ch input character
    * @return constant from {@link CharType} describing the character type.
-   * 
    * @see CharType
    */
   public static int getCharType(char ch) {
@@ -167,7 +168,7 @@ public class Utility {
       return CharType.SPACE_LIKE;
     // Punctuation Marks
     if ((ch >= 0x0021 && ch <= 0x00BB) || (ch >= 0x2010 && ch <= 0x2642)
-        || (ch >= 0x3001 && ch <= 0x301E))
+      || (ch >= 0x3001 && ch <= 0x301E))
       return CharType.DELIMITER;
 
     // Full-Width range

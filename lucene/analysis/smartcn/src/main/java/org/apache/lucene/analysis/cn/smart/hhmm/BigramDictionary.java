@@ -16,44 +16,35 @@
  */
 package org.apache.lucene.analysis.cn.smart.hhmm;
 
-import java.io.DataInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import org.apache.lucene.analysis.cn.smart.AnalyzerProfile;
+
+import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import org.apache.lucene.analysis.cn.smart.AnalyzerProfile;
-
 /**
  * SmartChineseAnalyzer Bigram dictionary.
+ *
  * @lucene.experimental
  */
 class BigramDictionary extends AbstractDictionary {
 
-  private BigramDictionary() {
-  }
-
   public static final char WORD_SEGMENT_CHAR = '@';
-
-  private static BigramDictionary singleInstance;
-
   public static final int PRIME_BIGRAM_LENGTH = 402137;
-
+  private static BigramDictionary singleInstance;
   /*
-   * The word associations are stored as FNV1 hashcodes, which have a small probability of collision, but save memory.  
+   * The word associations are stored as FNV1 hashcodes, which have a small probability of collision, but save memory.
    */
   private long[] bigramHashTable;
-
   private int[] frequencyTable;
-
   private int max = 0;
-
   private int repeat = 0;
+
+  private BigramDictionary() {
+  }
 
   // static Logger log = Logger.getLogger(BigramDictionary.class);
 
@@ -86,7 +77,7 @@ class BigramDictionary extends AbstractDictionary {
   }
 
   private void loadFromInputStream(InputStream serialObjectInputStream)
-      throws IOException, ClassNotFoundException {
+    throws IOException, ClassNotFoundException {
     try (ObjectInputStream input = new ObjectInputStream(serialObjectInputStream)) {
       bigramHashTable = (long[]) input.readObject();
       frequencyTable = (int[]) input.readObject();
@@ -96,7 +87,7 @@ class BigramDictionary extends AbstractDictionary {
 
   private void saveToObj(Path serialObj) throws IOException {
     try (ObjectOutputStream output = new ObjectOutputStream(Files.newOutputStream(
-        serialObj))) {
+      serialObj))) {
       output.writeObject(bigramHashTable);
       output.writeObject(frequencyTable);
       // log.info("serialize bigram dict.");
@@ -134,7 +125,7 @@ class BigramDictionary extends AbstractDictionary {
 
   /**
    * Load the datafile into this BigramDictionary
-   * 
+   *
    * @param dctFilePath path to the Bigramdictionary (bigramdict.dct)
    * @throws IOException If there is a low-level I/O error
    */
@@ -165,10 +156,10 @@ class BigramDictionary extends AbstractDictionary {
       while (j < cnt) {
         dctFile.read(intBuffer);
         buffer[0] = ByteBuffer.wrap(intBuffer).order(ByteOrder.LITTLE_ENDIAN)
-            .getInt();// frequency
+          .getInt();// frequency
         dctFile.read(intBuffer);
         buffer[1] = ByteBuffer.wrap(intBuffer).order(ByteOrder.LITTLE_ENDIAN)
-            .getInt();// length
+          .getInt();// length
         dctFile.read(intBuffer);
         // buffer[2] = ByteBuffer.wrap(intBuffer).order(
         // ByteOrder.LITTLE_ENDIAN).getInt();// handle
@@ -181,7 +172,7 @@ class BigramDictionary extends AbstractDictionary {
           if (i != 3755 + GB2312_FIRST_CHAR) {
             tmpword = currentStr + tmpword;
           }
-          char carray[] = tmpword.toCharArray();
+          char[] carray = tmpword.toCharArray();
           long hashId = hash1(carray);
           int index = getAvaliableIndex(hashId, carray);
           if (index != -1) {
@@ -199,7 +190,7 @@ class BigramDictionary extends AbstractDictionary {
     // log.info("load dictionary done! " + dctFilePath + " total:" + total);
   }
 
-  private int getAvaliableIndex(long hashId, char carray[]) {
+  private int getAvaliableIndex(long hashId, char[] carray) {
     int hash1 = (int) (hashId % PRIME_BIGRAM_LENGTH);
     int hash2 = hash2(carray) % PRIME_BIGRAM_LENGTH;
     if (hash1 < 0)
@@ -209,14 +200,14 @@ class BigramDictionary extends AbstractDictionary {
     int index = hash1;
     int i = 1;
     while (bigramHashTable[index] != 0 && bigramHashTable[index] != hashId
-        && i < PRIME_BIGRAM_LENGTH) {
+      && i < PRIME_BIGRAM_LENGTH) {
       index = (hash1 + i * hash2) % PRIME_BIGRAM_LENGTH;
       i++;
     }
     // System.out.println(i - 1);
 
     if (i < PRIME_BIGRAM_LENGTH
-        && (bigramHashTable[index] == 0 || bigramHashTable[index] == hashId)) {
+      && (bigramHashTable[index] == 0 || bigramHashTable[index] == hashId)) {
       return index;
     } else
       return -1;
@@ -225,7 +216,7 @@ class BigramDictionary extends AbstractDictionary {
   /*
    * lookup the index into the frequency array.
    */
-  private int getBigramItemIndex(char carray[]) {
+  private int getBigramItemIndex(char[] carray) {
     long hashId = hash1(carray);
     int hash1 = (int) (hashId % PRIME_BIGRAM_LENGTH);
     int hash2 = hash2(carray) % PRIME_BIGRAM_LENGTH;
@@ -237,7 +228,7 @@ class BigramDictionary extends AbstractDictionary {
     int i = 1;
     repeat++;
     while (bigramHashTable[index] != 0 && bigramHashTable[index] != hashId
-        && i < PRIME_BIGRAM_LENGTH) {
+      && i < PRIME_BIGRAM_LENGTH) {
       index = (hash1 + i * hash2) % PRIME_BIGRAM_LENGTH;
       i++;
       repeat++;

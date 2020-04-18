@@ -18,6 +18,7 @@ package org.apache.lucene.analysis.cn.smart;
 
 /**
  * Internal SmartChineseAnalyzer character type constants.
+ *
  * @lucene.experimental
  */
 public class CharType {

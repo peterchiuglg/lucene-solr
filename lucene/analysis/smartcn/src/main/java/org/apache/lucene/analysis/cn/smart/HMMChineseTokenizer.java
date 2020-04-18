@@ -17,17 +17,17 @@
 package org.apache.lucene.analysis.cn.smart;
 
 
-import java.io.IOException;
-import java.text.BreakIterator;
-import java.util.Iterator;
-import java.util.Locale;
-
 import org.apache.lucene.analysis.cn.smart.hhmm.SegToken;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
 import org.apache.lucene.analysis.tokenattributes.TypeAttribute;
 import org.apache.lucene.analysis.util.SegmentingTokenizerBase;
 import org.apache.lucene.util.AttributeFactory;
+
+import java.io.IOException;
+import java.text.BreakIterator;
+import java.util.Iterator;
+import java.util.Locale;
 
 /**
  * Tokenizer for Chinese or mixed Chinese-English text.
@@ -36,24 +36,30 @@ import org.apache.lucene.util.AttributeFactory;
  * The text is first broken into sentences, then each sentence is segmented into words.
  */
 public class HMMChineseTokenizer extends SegmentingTokenizerBase {
-  /** used for breaking the text into sentences */
+  /**
+   * used for breaking the text into sentences
+   */
   private static final BreakIterator sentenceProto = BreakIterator.getSentenceInstance(Locale.ROOT);
-  
+
   private final CharTermAttribute termAtt = addAttribute(CharTermAttribute.class);
   private final OffsetAttribute offsetAtt = addAttribute(OffsetAttribute.class);
   private final TypeAttribute typeAtt = addAttribute(TypeAttribute.class);
-  
+
   private final WordSegmenter wordSegmenter = new WordSegmenter();
   private Iterator<SegToken> tokens;
 
-  /** Creates a new HMMChineseTokenizer */
+  /**
+   * Creates a new HMMChineseTokenizer
+   */
   public HMMChineseTokenizer() {
     this(DEFAULT_TOKEN_ATTRIBUTE_FACTORY);
   }
-      
-  /** Creates a new HMMChineseTokenizer, supplying the AttributeFactory */
+
+  /**
+   * Creates a new HMMChineseTokenizer, supplying the AttributeFactory
+   */
   public HMMChineseTokenizer(AttributeFactory factory) {
-    super(factory, (BreakIterator)sentenceProto.clone());
+    super(factory, (BreakIterator) sentenceProto.clone());
   }
 
   @Override
@@ -75,7 +81,7 @@ public class HMMChineseTokenizer extends SegmentingTokenizerBase {
       return true;
     }
   }
-  
+
   @Override
   public void reset() throws IOException {
     super.reset();

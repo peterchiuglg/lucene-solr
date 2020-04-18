@@ -16,28 +16,23 @@
  */
 package org.apache.lucene.analysis.cn.smart.hhmm;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.lucene.analysis.cn.smart.Utility;
+
+import java.util.*;
 
 /**
  * Graph representing possible token pairs (bigrams) at each start offset in the sentence.
  * <p>
  * For each start offset, a list of possible token pairs is stored.
  * </p>
+ *
  * @lucene.experimental
  */
 class BiSegGraph {
 
-  private Map<Integer,ArrayList<SegTokenPair>> tokenPairListTable = new HashMap<>();
-
+  private static final BigramDictionary bigramDict = BigramDictionary.getInstance();
+  private final Map<Integer, ArrayList<SegTokenPair>> tokenPairListTable = new HashMap<>();
   private List<SegToken> segTokenList;
-
-  private static BigramDictionary bigramDict = BigramDictionary.getInstance();
 
   public BiSegGraph(SegGraph segGraph) {
     segTokenList = segGraph.makeIndex();
@@ -89,7 +84,7 @@ class BiSegGraph {
             System.arraycopy(t1.charArray, 0, idBuffer, 0, t1.charArray.length);
             idBuffer[t1.charArray.length] = BigramDictionary.WORD_SEGMENT_CHAR;
             System.arraycopy(t2.charArray, 0, idBuffer,
-                t1.charArray.length + 1, t2.charArray.length);
+              t1.charArray.length + 1, t2.charArray.length);
 
             // Two linked Words frequency
             wordPairFreq = bigramDict.getFrequency(idBuffer);
@@ -98,14 +93,14 @@ class BiSegGraph {
 
             // -log{a*P(Ci-1)+(1-a)P(Ci|Ci-1)} Note 0<a<1
             weight = -Math
-                .log(smooth
-                    * (1.0 + oneWordFreq)
-                    / (Utility.MAX_FREQUENCE + 0.0)
-                    + (1.0 - smooth)
-                    * ((1.0 - tinyDouble) * wordPairFreq / (1.0 + oneWordFreq) + tinyDouble));
+              .log(smooth
+                * (1.0 + oneWordFreq)
+                / (Utility.MAX_FREQUENCE + 0.0)
+                + (1.0 - smooth)
+                * ((1.0 - tinyDouble) * wordPairFreq / (1.0 + oneWordFreq) + tinyDouble));
 
             SegTokenPair tokenPair = new SegTokenPair(idBuffer, t1.index,
-                t2.index, weight);
+              t2.index, weight);
             this.addSegTokenPair(tokenPair);
           }
         }
@@ -117,7 +112,7 @@ class BiSegGraph {
 
   /**
    * Returns true if their is a list of token pairs at this offset (index of the second token)
-   * 
+   *
    * @param to index of the second token in the token pair
    * @return true if a token pair exists
    */
@@ -127,7 +122,7 @@ class BiSegGraph {
 
   /**
    * Return a {@link List} of all token pairs at this offset (index of the second token)
-   * 
+   *
    * @param to index of the second token in the token pair
    * @return {@link List} of token pairs.
    */
@@ -137,7 +132,7 @@ class BiSegGraph {
 
   /**
    * Add a {@link SegTokenPair}
-   * 
+   *
    * @param tokenPair {@link SegTokenPair}
    */
   public void addSegTokenPair(SegTokenPair tokenPair) {
@@ -154,6 +149,7 @@ class BiSegGraph {
 
   /**
    * Get the number of {@link SegTokenPair} entries in the table.
+   *
    * @return number of {@link SegTokenPair} entries
    */
   public int getToCount() {
@@ -162,6 +158,7 @@ class BiSegGraph {
 
   /**
    * Find the shortest path with the Viterbi algorithm.
+   *
    * @return {@link List}
    */
   public List<SegToken> getShortPath() {
@@ -219,7 +216,7 @@ class BiSegGraph {
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    Collection<ArrayList<SegTokenPair>>  values = tokenPairListTable.values();
+    Collection<ArrayList<SegTokenPair>> values = tokenPairListTable.values();
     for (ArrayList<SegTokenPair> segList : values) {
       for (SegTokenPair pair : segList) {
         sb.append(pair + "\n");

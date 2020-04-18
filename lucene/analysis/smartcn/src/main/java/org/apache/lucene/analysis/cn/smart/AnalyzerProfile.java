@@ -29,6 +29,7 @@ import java.util.Properties;
  * <p>
  * SmartChineseAnalyzer has a built-in dictionary and stopword list out-of-box.
  * </p>
+ *
  * @lucene.experimental
  */
 public class AnalyzerProfile {
@@ -51,18 +52,18 @@ public class AnalyzerProfile {
     if (ANALYSIS_DATA_DIR.length() != 0)
       return;
 
-    Path[] candidateFiles = new Path[] {
-        Paths.get(dirName),
-        Paths.get("lib").resolve(dirName),
-        Paths.get(propName),
-        Paths.get("lib").resolve(propName)
+    Path[] candidateFiles = new Path[]{
+      Paths.get(dirName),
+      Paths.get("lib").resolve(dirName),
+      Paths.get(propName),
+      Paths.get("lib").resolve(propName)
     };
     for (Path file : candidateFiles) {
       if (Files.exists(file)) {
         if (Files.isDirectory(file)) {
           ANALYSIS_DATA_DIR = file.toAbsolutePath().toString();
         } else if (Files.isRegularFile(file) && getAnalysisDataDir(file).length() != 0) {
-          ANALYSIS_DATA_DIR = getAnalysisDataDir(file).toString();
+          ANALYSIS_DATA_DIR = getAnalysisDataDir(file);
         }
         break;
       }
@@ -71,8 +72,8 @@ public class AnalyzerProfile {
     if (ANALYSIS_DATA_DIR.length() == 0) {
       // Dictionary directory cannot be found.
       throw new RuntimeException("WARNING: Can not find lexical dictionary directory!"
-       + " This will cause unpredictable exceptions in your application!"
-       + " Please refer to the manual to download the dictionaries.");
+        + " This will cause unpredictable exceptions in your application!"
+        + " Please refer to the manual to download the dictionaries.");
     }
 
   }

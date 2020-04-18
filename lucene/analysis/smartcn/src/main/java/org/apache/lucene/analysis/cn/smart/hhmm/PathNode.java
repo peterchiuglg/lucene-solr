@@ -21,6 +21,7 @@ package org.apache.lucene.analysis.cn.smart.hhmm;
  * <p>
  * Used by {@link BiSegGraph} to maximize the segmentation with the Viterbi algorithm.
  * </p>
+ *
  * @lucene.experimental
  */
 class PathNode implements Comparable<PathNode> {
@@ -66,9 +67,7 @@ class PathNode implements Comparable<PathNode> {
     PathNode other = (PathNode) obj;
     if (preNode != other.preNode)
       return false;
-    if (Double.doubleToLongBits(weight) != Double
-        .doubleToLongBits(other.weight))
-      return false;
-    return true;
+    return Double.doubleToLongBits(weight) == Double
+      .doubleToLongBits(other.weight);
   }
 }

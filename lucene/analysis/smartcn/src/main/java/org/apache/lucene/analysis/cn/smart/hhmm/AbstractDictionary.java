@@ -25,6 +25,7 @@ import java.io.UnsupportedEncodingException;
  * <p>
  * Contains methods for dealing with GB2312 encoding.
  * </p>
+ *
  * @lucene.experimental
  */
 abstract class AbstractDictionary {
@@ -35,7 +36,7 @@ abstract class AbstractDictionary {
   public static final int GB2312_FIRST_CHAR = 1410;
 
   /**
-   * Last Chinese Character in GB2312 (87 * 94). 
+   * Last Chinese Character in GB2312 (87 * 94).
    * Characters in GB2312 are arranged in a grid of 94 * 94, 88-94 are unassigned.
    */
   public static final int GB2312_CHAR_NUM = 87 * 94;
@@ -79,7 +80,7 @@ abstract class AbstractDictionary {
    * GB2312 is divided into a 94 * 94 grid, containing 7445 characters consisting of 6763 Chinese characters and 682 symbols.
    * Some regions are unassigned (reserved).
    * </p>
-   * 
+   *
    * @param ccid GB2312 id
    * @return unicode String
    */
@@ -101,7 +102,7 @@ abstract class AbstractDictionary {
 
   /**
    * Transcode from Unicode to GB2312
-   * 
+   *
    * @param ch input character in Unicode, or character in Basic Latin range.
    * @return position in GB2312
    */
@@ -114,7 +115,7 @@ abstract class AbstractDictionary {
       }
       int b0 = (buffer[0] & 0x0FF) - 161; // Code starts from A1, therefore subtract 0xA1=161
       int b1 = (buffer[1] & 0x0FF) - 161; // There is no Chinese char for the first and last symbol. 
-                                          // Therefore, each code page only has 16*6-2=94 characters.
+      // Therefore, each code page only has 16*6-2=94 characters.
       return (short) (b0 * 94 + b1);
     } catch (UnsupportedEncodingException e) {
       throw new RuntimeException(e);
@@ -123,7 +124,7 @@ abstract class AbstractDictionary {
 
   /**
    * 32-bit FNV Hash Function
-   * 
+   *
    * @param c input character
    * @return hashcode
    */
@@ -142,11 +143,11 @@ abstract class AbstractDictionary {
 
   /**
    * 32-bit FNV Hash Function
-   * 
+   *
    * @param carray character array
    * @return hashcode
    */
-  public long hash1(char carray[]) {
+  public long hash1(char[] carray) {
     final long p = 1099511628211L;
     long hash = 0xcbf29ce484222325L;
     for (int i = 0; i < carray.length; i++) {
@@ -169,7 +170,7 @@ abstract class AbstractDictionary {
    * (now favored by bernstein) uses xor: hash(i) = hash(i - 1) * 33 ^ str[i];
    * the magic of number 33 (why it works better than many other constants,
    * prime or not) has never been adequately explained.
-   * 
+   *
    * @param c character
    * @return hashcode
    */
@@ -189,11 +190,11 @@ abstract class AbstractDictionary {
    * (now favored by bernstein) uses xor: hash(i) = hash(i - 1) * 33 ^ str[i];
    * the magic of number 33 (why it works better than many other constants,
    * prime or not) has never been adequately explained.
-   * 
+   *
    * @param carray character array
    * @return hashcode
    */
-  public int hash2(char carray[]) {
+  public int hash2(char[] carray) {
     int hash = 5381;
 
     /* hash 33 + c */
