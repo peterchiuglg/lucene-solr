@@ -20,4 +20,4 @@
  *
  * @lucene.experimental
  */
-package org.apache.lucene.analysis.cn.smart.hhmm;
+package com.peterchiu.hhmm;

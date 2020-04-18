@@ -34,4 +34,4 @@
  * </ol>
  * </div>
  */
-package org.apache.lucene.analysis.cn.smart;
+package com.peterchiu;

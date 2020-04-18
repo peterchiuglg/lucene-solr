@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.lucene.analysis.cn.smart.hhmm;
+package com.peterchiu.hhmm;
 
 import java.util.ArrayList;
 import java.util.HashMap;

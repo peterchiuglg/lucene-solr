@@ -14,11 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.lucene.analysis.cn.smart;
+package com.peterchiu;
 
-import org.apache.lucene.analysis.cn.smart.hhmm.HHMMSegmenter;
-import org.apache.lucene.analysis.cn.smart.hhmm.SegToken;
-import org.apache.lucene.analysis.cn.smart.hhmm.SegTokenFilter;
+import com.peterchiu.hhmm.HHMMSegmenter;
+import com.peterchiu.hhmm.SegToken;
+import com.peterchiu.hhmm.SegTokenFilter;
 
 import java.util.Collections;
 import java.util.List;

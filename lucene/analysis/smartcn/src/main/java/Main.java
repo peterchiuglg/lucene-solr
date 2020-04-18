@@ -1,4 +1,4 @@
-import org.apache.lucene.analysis.cn.smart.HMMChineseTokenizer;
+import com.peterchiu.HMMChineseTokenizer;
 
 import java.io.IOException;
 import java.io.Reader;
