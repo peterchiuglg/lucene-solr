@@ -25,6 +25,8 @@ import java.nio.ByteOrder;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * SmartChineseAnalyzer Word Dictionary
@@ -58,6 +60,9 @@ class WordDictionary extends AbstractDictionary {
    */
   private char[][][] wordItem_charArrayTable;
   private int[][] wordItem_frequencyTable;
+
+  private String[] whitelistOrg;
+  private String[] whitelistSeg;
 
   private WordDictionary() {
   }
@@ -120,12 +125,41 @@ class WordDictionary extends AbstractDictionary {
 
   }
 
+  private void loadWhitelist() {
+    try {
+      try (InputStream is = this.getClass().getResourceAsStream("whitelist.txt")) {
+        String res = new BufferedReader(new InputStreamReader(is))
+          .lines().collect(Collectors.joining("\n"));
+        System.out.println(res);
+
+        whitelistOrg = Arrays.stream(res.split("\n"))
+          .filter(l -> l.length() > 1)
+          .toArray(String[]::new);
+
+        Set<String> temp = new HashSet<>(Arrays.asList(whitelistOrg));
+        whitelistOrg = temp.toArray(new String[temp.size()]);
+
+        List<String> list = new ArrayList<>();
+        for (String s : whitelistOrg)
+          for (int i = 2; i <= s.length(); i++)
+            list.add(s.substring(0, i));
+
+        whitelistSeg = list.toArray(new String[0]);
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+
   /**
    * Load coredict.mem internally from the jar file.
    *
    * @throws IOException If there is a low-level I/O error.
    */
   public void load() throws IOException, ClassNotFoundException {
+    loadWhitelist();
     InputStream input = this.getClass().getResourceAsStream("coredict.mem");
     loadFromObjectInputStream(input);
   }
@@ -456,6 +490,10 @@ class WordDictionary extends AbstractDictionary {
    * @see #getPrefixMatch(char[])
    */
   public int getPrefixMatch(char[] charArray, int knownStart) {
+    String str = new String(charArray);
+    for (String s : whitelistSeg)
+      if (str.equals(s))
+        return 1;
     short index = getWordItemTableIndex(charArray[0]);
     if (index == -1)
       return -1;
@@ -508,6 +546,10 @@ class WordDictionary extends AbstractDictionary {
    * @return true if the entry exists
    */
   public boolean isEqual(char[] charArray, int itemIndex) {
+    String str = new String(charArray);
+    for (String s : whitelistOrg)
+      if (str.equals(s))
+        return true;
     short hashIndex = getWordItemTableIndex(charArray[0]);
     return Utility.compareArray(charArray, 1,
       wordItem_charArrayTable[wordIndexTable[hashIndex]][itemIndex], 0) == 0;
