@@ -17,35 +17,39 @@
 package com.peterchiu;
 
 
-import java.io.Reader;
-import java.io.StringReader;
-import java.util.HashMap;
-
 import org.apache.lucene.analysis.BaseTokenStreamTestCase;
 import org.apache.lucene.analysis.Tokenizer;
 import org.apache.lucene.analysis.util.TokenizerFactory;
 
-/** 
+import java.io.Reader;
+import java.io.StringReader;
+import java.util.HashMap;
+
+/**
  * Tests for {@link HMMChineseTokenizerFactory}
  */
 public class TestHMMChineseTokenizerFactory extends BaseTokenStreamTestCase {
-  
-  /** Test showing the behavior */
+
+  /**
+   * Test showing the behavior
+   */
   public void testSimple() throws Exception {
     Reader reader = new StringReader("我购买了道具和服装。");
-    TokenizerFactory factory = new HMMChineseTokenizerFactory(new HashMap<String,String>());
+    TokenizerFactory factory = new HMMChineseTokenizerFactory(new HashMap<String, String>());
     Tokenizer tokenizer = factory.create(newAttributeFactory());
     tokenizer.setReader(reader);
     // TODO: fix smart chinese to not emit punctuation tokens
     // at the moment: you have to clean up with WDF, or use the stoplist, etc
-    assertTokenStreamContents(tokenizer, 
-       new String[] { "我", "购买", "了", "道具", "和", "服装", "," });
+    assertTokenStreamContents(tokenizer,
+      new String[]{"我", "购买", "了", "道具", "和", "服装", ","});
   }
-  
-  /** Test that bogus arguments result in exception */
+
+  /**
+   * Test that bogus arguments result in exception
+   */
   public void testBogusArguments() throws Exception {
     IllegalArgumentException expected = expectThrows(IllegalArgumentException.class, () -> {
-      new HMMChineseTokenizerFactory(new HashMap<String,String>() {{
+      new HMMChineseTokenizerFactory(new HashMap<String, String>() {{
         put("bogusArg", "bogusValue");
       }});
     });
